@@ -1,21 +1,7 @@
+#include"test.h"
 
-#include <opencv2/opencv.hpp>
-#include <iostream>
-#include <string>
-#include <vector>
-#include<time.h>
-#include<math.h>
- 
-using namespace cv;
-using namespace std;
-
- 
-const int ANGLE= 1;
-const int WIDTH = 0;
- 
-#define DELAT_MAX 30
-typedef	int filter_type;
 filter_type filter(filter_type effective_value, filter_type new_value, filter_type delat_max);
+
 filter_type filter(filter_type effective_value, filter_type new_value, filter_type delat_max)
 {
     if ( ( new_value - effective_value > delat_max ) || ( effective_value - new_value > delat_max ))
@@ -25,56 +11,56 @@ filter_type filter(filter_type effective_value, filter_type new_value, filter_ty
     }
     else
     {
-        new_value=effective_value;
+        
         return new_value;
     }
 }
-RotatedRect &adjustRec(cv::RotatedRect &rec, const int mode)
-{
-    using std::swap;
- 
-    float &width = rec.size.width;
-    float &height = rec.size.height;
-    float &angle = rec.angle;
- 
-    if (mode == WIDTH)
-    {
-        if (width < height)
-        {
-            swap(width, height);
-            angle += 90.0;
-        }
-    }
- 
-    while (angle >= 90.0)
-        angle -= 180.0;
-    while (angle < -90.0)
-        angle += 180.0;
- 
-    if (mode == ANGLE)
-    {
-        if (angle >= 45.0)
-        {
-            swap(width, height);
-            angle -= 90.0;
-        }
-        else if (angle < -45.0)
-        {
-            swap(width, height);
-            angle += 90.0;
-        }
-    }
-    return rec;
-} 
 
+RotatedRect& adjust(cv::RotatedRect& rec, const int mode)
+   {
+       using std::swap;
+
+       float& width = rec.size.width;
+       float& height = rec.size.height;
+       float& angle = rec.angle;
+
+       if (mode == WIDTH)
+       {
+           if (width < height)
+           {
+               swap(width, height);
+               angle += 90.0;
+           }
+       }
+
+       while (angle >= 90.0) angle -= 180.0;
+       while (angle < -90.0) angle += 180.0;
+
+       if (mode == ANGLE)
+       {
+           if (angle >= 45.0)
+           {
+               swap(width, height);
+               angle -= 90.0;
+           }
+           else if (angle < -45.0)
+           {
+               swap(width, height);
+               angle += 90.0;
+           }
+       }
+   return rec;
+}
 
  
  
 int main(){
 
-    VideoCapture cap("/home/liuheming/桌面/opencv/build/zimiao/path_to_your_video.mp4");
-    
+    VideoCapture cap("/home/liuheming/桌面/opencv/build/zimiao/path_to_your_video1.avi");
+    clock_t start ,finsh;
+    double yanchi;
     while (true) {
+        start=clock();
             Mat frame;
           cap >> frame; 
 
@@ -90,11 +76,11 @@ int main(){
     equalizeHist(hsvS[2], hsvS[2]);
     merge(hsvS, frameH);
     Mat thresHold;
-    threshold(hsvS[2], thresHold,240,255,THRESH_BINARY);
+    threshold(hsvS[2], thresHold,220,255,THRESH_BINARY);
     blur(thresHold, thresHold, Size(3,3));
     Mat element = getStructuringElement(MORPH_ELLIPSE,Size(3,3));
     dilate(thresHold, element, element);
-   
+
     vector<RotatedRect> v;
     vector<RotatedRect> R;
     vector<vector<Point>> Contour;
@@ -110,11 +96,11 @@ int main(){
         if (Contour_Area < 15 || Contour[i].size() <= 10)
             continue;
         RotatedRect Light_Rec = fitEllipse(Contour[i]);
-        Light_Rec = adjustRec(Light_Rec, ANGLE);
+        Light_Rec = adjust(Light_Rec, ANGLE);
     
-        if (Light_Rec.angle > 10 )
+        if (Light_Rec.angle > 4.5)
             continue;
-        if (Light_Rec.size.width / Light_Rec.size.height > 2
+        if (Light_Rec.size.width / Light_Rec.size.height > 1.8
                 ||Contour_Area / Light_Rec.size.area() < 0.68)
             continue;
         Light_Rec. size.height *= 1.1;
@@ -162,6 +148,9 @@ int main(){
            
         }
     }
+    finsh=clock();
+    yanchi=(double)(finsh-start)/CLOCKS_PER_SEC;
+    cout<<yanchi<<"秒!"<<endl;
 
     imshow("Ceshi", frame);
     waitKey(5);
