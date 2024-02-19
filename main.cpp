@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include<time.h>
+#include<math.h>
  
 using namespace cv;
 using namespace std;
@@ -12,7 +13,22 @@ using namespace std;
 const int ANGLE= 1;
 const int WIDTH = 0;
  
-
+#define DELAT_MAX 30
+typedef	int filter_type;
+filter_type filter(filter_type effective_value, filter_type new_value, filter_type delat_max);
+filter_type filter(filter_type effective_value, filter_type new_value, filter_type delat_max)
+{
+    if ( ( new_value - effective_value > delat_max ) || ( effective_value - new_value > delat_max ))
+    {
+        new_value=effective_value;
+        return effective_value;
+    }
+    else
+    {
+        new_value=effective_value;
+        return new_value;
+    }
+}
 RotatedRect &adjustRec(cv::RotatedRect &rec, const int mode)
 {
     using std::swap;
@@ -50,6 +66,9 @@ RotatedRect &adjustRec(cv::RotatedRect &rec, const int mode)
     }
     return rec;
 } 
+
+
+ 
  
 int main(){
 
@@ -64,34 +83,42 @@ int main(){
         return -1;
         } 
         Mat frameH;
+        
     vector<Mat> hsvS;
     cvtColor(frame, frameH, COLOR_BGR2HSV);
     split(frameH, hsvS);
     equalizeHist(hsvS[2], hsvS[2]);
     merge(hsvS, frameH);
     Mat thresHold;
-    threshold(hsvS[2], thresHold,240,245,THRESH_BINARY);
+    threshold(hsvS[2], thresHold,240,255,THRESH_BINARY);
     blur(thresHold, thresHold, Size(3,3));
     Mat element = getStructuringElement(MORPH_ELLIPSE,Size(3,3));
     dilate(thresHold, element, element);
+   
     vector<RotatedRect> v;
     vector<RotatedRect> R;
     vector<vector<Point>> Contour;
     findContours(element.clone(), Contour, RETR_EXTERNAL,CHAIN_APPROX_SIMPLE);
+
     for (unsigned int i = 0; i < Contour.size();i++)
     {
+
+  
+
         double Contour_Area = contourArea(Contour[i]);
+
         if (Contour_Area < 15 || Contour[i].size() <= 10)
             continue;
         RotatedRect Light_Rec = fitEllipse(Contour[i]);
         Light_Rec = adjustRec(Light_Rec, ANGLE);
-        if (Light_Rec.angle > 20 )
+    
+        if (Light_Rec.angle > 10 )
             continue;
-        if (Light_Rec.size.width / Light_Rec.size.height > 3
-                ||Contour_Area / Light_Rec.size.area() < 0.3)
+        if (Light_Rec.size.width / Light_Rec.size.height > 2
+                ||Contour_Area / Light_Rec.size.area() < 0.68)
             continue;
-        Light_Rec. size.height *= 1.2;
-        Light_Rec.size.width *= 1.2;
+        Light_Rec. size.height *= 1.1;
+        Light_Rec.size.width *= 1.1;
         v.push_back(Light_Rec);
     }
     for (size_t i = 0; i < v.size(); i++)
@@ -99,11 +126,11 @@ int main(){
         for (size_t j = i + 1; (j < v.size()); j++)
         {
             float Contour_angle = abs(v[i].angle - v[j].angle); 
-            if (Contour_angle >= 30)
+            if (Contour_angle >7)
                 continue;
             float Contour_Len1 = abs(v[i].size.height - v[j].size.height) / max(v[i].size.height, v[j].size.height);
             float Contour_Len2 = abs(v[i].size.width - v[j].size.width) / max(v[i].size.width, v[j].size.width);
-            if (Contour_Len1 > 0.5 || Contour_Len2 > 0.5)
+            if (Contour_Len1 > 0.25 || Contour_Len2 > 0.25)
                 continue;
             RotatedRect AR;
             AR.center.x = (v[i].center.x + v[j].center.x) / 2.; 
@@ -122,18 +149,22 @@ int main(){
             R.push_back(AR);
             Point2f point1;
             Point2f point2;
-            point1.x=v[i].center.x;point1.y=v[i].center.y+20;
-            point2.x=v[j].center.x;point2.y=v[j].center.y-20;
+            point1.x=v[i].center.x;point1.y=v[i].center.y+30;
+            point2.x=v[j].center.x;point2.y=v[j].center.y-30;
             int xm= (point1.x+point2.x)/2;
             int ym = (point1.y+point2.y)/2;
+            AR.center.x = filter(AR.center.x,xm, DELAT_MAX);
+            AR.center.y = filter(AR.center.y,ym, DELAT_MAX);
+
             Scalar color(100, 100, 55);
-            rectangle(frame, point1,point2, color, 2);
+            rectangle(frame, point1,point2, color, 2 );
+
            
         }
     }
 
     imshow("Ceshi", frame);
-    waitKey(1);
+    waitKey(5);
     }
- cap.release();
+
 }
