@@ -1,8 +1,62 @@
 #include"test.h"
 
+<<<<<<< HEAD
 filter_type filter(filter_type effective, filter_type newe, filter_type max);
 
 RotatedRect& adjust(cv::RotatedRect& rec, const int mode);
+=======
+filter_type filter(filter_type effective_value, filter_type new_value, filter_type delat_max);
+
+filter_type filter(filter_type effective_value, filter_type new_value, filter_type delat_max)
+{
+    if ( ( new_value - effective_value > delat_max ) || ( effective_value - new_value > delat_max ))
+    {
+        new_value=effective_value;
+        return effective_value;
+    }
+    else
+    {
+        
+        return new_value;
+    }
+}
+
+RotatedRect& adjust(cv::RotatedRect& rec, const int mode)
+   {
+       using std::swap;
+
+       float& width = rec.size.width;
+       float& height = rec.size.height;
+       float& angle = rec.angle;
+
+       if (mode == WIDTH)
+       {
+           if (width < height)
+           {
+               swap(width, height);
+               angle += 90.0;
+           }
+       }
+
+       while (angle >= 90.0) angle -= 180.0;
+       while (angle < -90.0) angle += 180.0;
+
+       if (mode == ANGLE)
+       {
+           if (angle >= 45.0)
+           {
+               swap(width, height);
+               angle -= 90.0;
+           }
+           else if (angle < -45.0)
+           {
+               swap(width, height);
+               angle += 90.0;
+           }
+       }
+   return rec;
+}
+>>>>>>> f4ca1bcf15cfe428fd775372f675fe2c365f2cbf
 
  
  
@@ -44,10 +98,14 @@ int main(){
     equalizeHist(hsvS[2], hsvS[2]);
     merge(hsvS, frameH);
     Mat thresHold;
-    threshold(hsvS[2], thresHold,240,255,THRESH_BINARY);
+    threshold(hsvS[2], thresHold,220,255,THRESH_BINARY);
     blur(thresHold, thresHold, Size(3,3));
     Mat element = getStructuringElement(MORPH_ELLIPSE,Size(3,3));
     dilate(thresHold, element, element);
+<<<<<<< HEAD
+=======
+
+>>>>>>> f4ca1bcf15cfe428fd775372f675fe2c365f2cbf
     vector<RotatedRect> v;
     vector<RotatedRect> R;
     vector<vector<Point>> Contour;
@@ -62,7 +120,11 @@ int main(){
         RotatedRect Light_Rec = fitEllipse(Contour[i]);
         Light_Rec = adjust(Light_Rec, ANGLE);
     
+<<<<<<< HEAD
         if (Light_Rec.angle > 10)
+=======
+        if (Light_Rec.angle > 4.5)
+>>>>>>> f4ca1bcf15cfe428fd775372f675fe2c365f2cbf
             continue;
         if (Light_Rec.size.width / Light_Rec.size.height > 1.8
                 ||Contour_Area / Light_Rec.size.area() < 0.68)
