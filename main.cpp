@@ -1,3 +1,4 @@
+
 #include"test.h"
 
 filter_type filter(filter_type effective, filter_type newe, filter_type max);
@@ -21,12 +22,18 @@ int main(){
         return -1;
         } 
         Mat frameH;
+   vector<Point3f> Points3D;
 
+    Points3D.push_back(Point3f(-67,-27.5,0));
+    Points3D.push_back(Point3f(-67,27.5,0));
+    Points3D.push_back(Point3f(67,-27.5,0));
+    Points3D.push_back(Point3f(67,27.5,0));
+     vector<Point2f> Points2D;
         int stateNum = 4;
     int measureNum = 2;
     KalmanFilter KF(stateNum, measureNum, 0);
 
-    Mat measurement = Mat::zeros(measureNum, 1, CV_32F);
+    Mat mea = Mat::zeros(measureNum, 1, CV_32F);
     KF.transitionMatrix = (Mat_<float>(stateNum, stateNum) << 1, 0, 1, 0,
         0, 1, 0, 1,
         0, 0, 1, 0,
@@ -37,15 +44,20 @@ int main(){
     setIdentity(KF.measurementNoiseCov, Scalar::all(1e-1));
     setIdentity(KF.errorCovPost, Scalar::all(1));
     randn(KF.statePost, Scalar::all(0), Scalar::all(0.1));//卡尔曼滤波器，用来预测点的轨迹
-
+     Mat cameraMatrix=(Mat_<float>(3,3) <<2337.174430, 0.000000, 746.042769,
+    0.000000 ,2334.605162 ,561.369316,
+    0.000000 ,0.000000 ,1.000000);
+    Mat dist=(Mat_<float>(1,5) <<-0.10632024648023272, 0.10306047267202897, -0.0005522032223838761, 0.0015989186062307333, 0.0);
     vector<Mat> hsvS;
     cvtColor(frame, frameH, COLOR_BGR2HSV);
+    Mat hsv_img;
+    hsv_img=frameH;
     split(frameH, hsvS);
-    equalizeHist(hsvS[2], hsvS[2]);
-    merge(hsvS, frameH);
+
+    merge(hsvS, hsv_img);
     Mat thresHold;
-    threshold(hsvS[2], thresHold,240,255,THRESH_BINARY);
-    blur(thresHold, thresHold, Size(3,3));
+    threshold(hsvS[2],thresHold,250,255,THRESH_BINARY);
+   
     Mat element = getStructuringElement(MORPH_ELLIPSE,Size(3,3));
     dilate(thresHold, element, element);
     vector<RotatedRect> v;
@@ -115,11 +127,26 @@ int main(){
             mea.at<float>(1) = (float)AR.center.y;
             KF.correct(mea);
 
-            Scalar color(100, 100, 55);
+    
                   
-            rectangle(frame,Point(AR.center.x-30,AR.center.y-30),Point(AR.center.x+30,AR.center.y+30),color,2);
           
+          Mat rvec,tvec;
+          rvec=Mat::zeros(3,1,CV_64F);
+        tvec=Mat::zeros(3,1,CV_64F);
+          
+         
+          Point2f point[4];
+           AR.points(point);
+            for(int i=0;i<4;i++)
+            {
+                line(frame,point[i],point[(i+1)%4],Scalar(255,0,0));
 
+                 Points2D.push_back(point[i]);
+                
+            }
+
+     solvePnP(Points3D,Points2D,cameraMatrix,dist,rvec,tvec,false,SOLVEPNP_ITERATIVE);
+          cout<<rvec<<endl<<endl<<tvec;
          
         }
     }
