@@ -26,7 +26,7 @@ int main(){
     int measureNum = 2;
     KalmanFilter KF(stateNum, measureNum, 0);
 
-    Mat measurement = Mat::zeros(measureNum, 1, CV_32F);
+    Mat mea = Mat::zeros(measureNum, 1, CV_32F);
     KF.transitionMatrix = (Mat_<float>(stateNum, stateNum) << 1, 0, 1, 0,
         0, 1, 0, 1,
         0, 0, 1, 0,
@@ -40,11 +40,13 @@ int main(){
 
     vector<Mat> hsvS;
     cvtColor(frame, frameH, COLOR_BGR2HSV);
+    Mat hsv_img;
+    hsv_img=frameH;
     split(frameH, hsvS);
-    equalizeHist(hsvS[2], hsvS[2]);
-    merge(hsvS, frameH);
+
+    merge(hsvS, hsv_img);
     Mat thresHold;
-    threshold(hsvS[2], thresHold,240,255,THRESH_BINARY);
+    threshold(hsvS[2],thresHold,240,255,THRESH_BINARY);
     blur(thresHold, thresHold, Size(3,3));
     Mat element = getStructuringElement(MORPH_ELLIPSE,Size(3,3));
     dilate(thresHold, element, element);
@@ -78,9 +80,14 @@ int main(){
           
             AR.center.x = (v[i].center.x + v[j].center.x) / 2.; 
             AR.center.y = (v[i].center.y + v[j].center.y) / 2.; 
+
             float Contour_angle = abs(v[i].angle - v[j].angle); 
             if (Contour_angle >7)
                 continue;
+      
+          
+
+         
             float Contour_Len1 = abs(v[i].size.height - v[j].size.height) / max(v[i].size.height, v[j].size.height);
             float Contour_Len2 = abs(v[i].size.width - v[j].size.width) / max(v[i].size.width, v[j].size.width);
             if (Contour_Len1 > 0.25 || Contour_Len2 > 0.25)
@@ -107,8 +114,7 @@ int main(){
        
             AR.center.x = filter(AR.center.x,xm, DELAT_MAX);
             AR.center.y = filter(AR.center.y,ym, DELAT_MAX);
-         
-            Mat prediction = KF.predict();
+                   Mat prediction = KF.predict();
             Point predict_pt = Point((int)prediction.at<float>(0), (int)prediction.at<float>(1));
 
             mea.at<float>(0) = (float)AR.center.x;
@@ -117,10 +123,9 @@ int main(){
 
             Scalar color(100, 100, 55);
                   
-            rectangle(frame,Point(AR.center.x-30,AR.center.y-30),Point(AR.center.x+30,AR.center.y+30),color,2);
-          
-
+            rectangle(frame,Point(AR.center.x-30,AR.center.y-30),Point(AR.center.x+50,AR.center.y+50),color,2);
          
+           
         }
     }
     finsh=clock();
