@@ -7,6 +7,7 @@
 #include <string>
 #include<vector>
 #include <time.h>
+#include<Eigen/Dense>
 using namespace cv;
 using namespace std;
 
