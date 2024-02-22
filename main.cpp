@@ -150,7 +150,7 @@ int main(){
          
 
     // solvePnP(Points3D,Points2D,cameraMatrix,dist,rvec,tvec,false,SOLVEPNP_ITERATIVE);
-        //  cout<<rvec<<endl<<endl<<tvec;
+        //  cout<<rvec<<endl<<endl<<tvec;//解算部分疑似vector储存超维会在识别过程中突然错误
          
         }
     }
