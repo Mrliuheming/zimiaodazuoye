@@ -127,7 +127,10 @@ int main(){
             mea.at<float>(1) = (float)AR.center.y;
             KF.correct(mea);
 
-    
+    //  Scalar color(100, 100, 55);
+                  
+          //  rectangle(frame,Point(AR.center.x-30,AR.center.y-30),Point(AR.center.x+50,AR.center.y+50),color,2);//另一种绘图方式
+         
                   
           
           Mat rvec,tvec;
@@ -144,6 +147,7 @@ int main(){
                  Points2D.push_back(point[i]);
                 
             }
+         
 
     // solvePnP(Points3D,Points2D,cameraMatrix,dist,rvec,tvec,false,SOLVEPNP_ITERATIVE);
         //  cout<<rvec<<endl<<endl<<tvec;
