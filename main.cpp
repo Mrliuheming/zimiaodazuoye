@@ -145,8 +145,8 @@ int main(){
                 
             }
 
-     solvePnP(Points3D,Points2D,cameraMatrix,dist,rvec,tvec,false,SOLVEPNP_ITERATIVE);
-          cout<<rvec<<endl<<endl<<tvec;
+    // solvePnP(Points3D,Points2D,cameraMatrix,dist,rvec,tvec,false,SOLVEPNP_ITERATIVE);
+        //  cout<<rvec<<endl<<endl<<tvec;
          
         }
     }
