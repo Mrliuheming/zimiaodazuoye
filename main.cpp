@@ -1,4 +1,5 @@
 
+
 #include"test.h"
 
 filter_type filter(filter_type effective, filter_type newe, filter_type max);
@@ -29,7 +30,9 @@ int main(){
     Points3D.push_back(Point3f(67,-27.5,0));
     Points3D.push_back(Point3f(67,27.5,0));
      vector<Point2f> Points2D;
-        int stateNum = 4;
+ int enemy_color;
+      enemy_color = REDENEMY;
+          int stateNum = 4;
     int measureNum = 2;
     KalmanFilter KF(stateNum, measureNum, 0);
 
@@ -48,17 +51,24 @@ int main(){
     0.000000 ,2334.605162 ,561.369316,
     0.000000 ,0.000000 ,1.000000);
     Mat dist=(Mat_<float>(1,5) <<-0.10632024648023272, 0.10306047267202897, -0.0005522032223838761, 0.0015989186062307333, 0.0);
-    vector<Mat> hsvS;
+    vector<Mat> hsvS,channels;
     cvtColor(frame, frameH, COLOR_BGR2HSV);
-    Mat hsv_img;
-    hsv_img=frameH;
     split(frameH, hsvS);
+    merge(hsvS, frameH);
+    Mat dstmg,gray_img;
+    cvtColor(frameH,dstmg,COLOR_BGR2HSV);
+    split(dstmg,channels);
+        if (!enemy_color) {                              
+        gray_img = channels.at(0) - channels.at(2);
+        }
+        else 
+        gray_img = channels.at(2) - channels.at(0);
 
-    merge(hsvS, hsv_img);
     Mat thresHold;
     threshold(hsvS[2],thresHold,250,255,THRESH_BINARY);
    
     Mat element = getStructuringElement(MORPH_ELLIPSE,Size(3,3));
+  
     dilate(thresHold, element, element);
     vector<RotatedRect> v;
     vector<RotatedRect> R;
@@ -69,18 +79,17 @@ int main(){
     {
         double Contour_Area = contourArea(Contour[i]);
 
-        if (Contour_Area < 15 || Contour[i].size() <= 10)
+        if (Contour_Area < 5 || Contour[i].size() <= 1)
             continue;
         RotatedRect Light_Rec = fitEllipse(Contour[i]);
         Light_Rec = adjust(Light_Rec, ANGLE);
-    
-        if (Light_Rec.angle > 10)
+        if (Light_Rec.size.width / Light_Rec.size.height > 0.8
+         
+              )
+     
             continue;
-        if (Light_Rec.size.width / Light_Rec.size.height > 1.8
-                ||Contour_Area / Light_Rec.size.area() < 0.68)
-            continue;
-        Light_Rec. size.height *= 1.1;
-        Light_Rec.size.width *= 1.1;
+          
+       
         v.push_back(Light_Rec);
     }
     for (size_t i = 0; i < v.size(); i++)
@@ -98,8 +107,7 @@ int main(){
             if (Contour_Len1 > 0.25 || Contour_Len2 > 0.25)
                 continue;
             AR.angle = (v[i].angle + v[j].angle) / 2.; 
-            
-            float h, w, yD, xD;
+           if(AR.angle>-90&&AR.angle<-60) continue;            float h, w, yD, xD;
             h = (v[i].size.height + v[j].size.height) / 2; 
             w = sqrt((v[i].center.x - v[j].center.x) * (v[i].center.x - v[j].center.x) + (v[i].center.y - v[j].center.y) * (v[i].center.y - v[j].center.y));
             float ra = w / h; 
@@ -119,7 +127,6 @@ int main(){
        
             AR.center.x = filter(AR.center.x,xm, DELAT_MAX);
             AR.center.y = filter(AR.center.y,ym, DELAT_MAX);
-         
             Mat prediction = KF.predict();
             Point predict_pt = Point((int)prediction.at<float>(0), (int)prediction.at<float>(1));
 
@@ -127,12 +134,7 @@ int main(){
             mea.at<float>(1) = (float)AR.center.y;
             KF.correct(mea);
 
-    //  Scalar color(100, 100, 55);
-                  
-          //  rectangle(frame,Point(AR.center.x-30,AR.center.y-30),Point(AR.center.x+50,AR.center.y+50),color,2);//另一种绘图方式
-         
-                  
-          
+
           Mat rvec,tvec;
           rvec=Mat::zeros(3,1,CV_64F);
         tvec=Mat::zeros(3,1,CV_64F);
@@ -147,10 +149,9 @@ int main(){
                  Points2D.push_back(point[i]);
                 
             }
-         
 
-    // solvePnP(Points3D,Points2D,cameraMatrix,dist,rvec,tvec,false,SOLVEPNP_ITERATIVE);
-        //  cout<<rvec<<endl<<endl<<tvec;//解算部分疑似vector储存超维会在识别过程中突然错误
+     //solvePnP(Points3D,Points2D,cameraMatrix,dist,rvec,tvec,false,SOLVEPNP_ITERATIVE);
+         //cout<<rvec<<endl<<endl<<tvec;//解算部分疑似vector储存超维会在识别过程中突然错误
          
         }
     }
@@ -159,7 +160,7 @@ int main(){
     cout<<yanchi<<"秒!"<<endl;
 
     imshow("Ceshi", frame);
-    waitKey(5);
+    waitKey(1);
     }
 
 }
