@@ -47,4 +47,8 @@ RotatedRect& adjust(cv::RotatedRect& rec, const int mode)//预处理
            }
        }
    return rec;
+
 }
+
+
+
