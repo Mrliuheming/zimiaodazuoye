@@ -7,13 +7,14 @@
 #include <string>
 #include<vector>
 #include <time.h>
-#include<Eigen/Dense>
+#include<Eigen/Core>
 using namespace cv;
 using namespace std;
 
 const int ANGLE= 1;
 const int WIDTH = 0;
-
+#define REDENEMY 2
+#define BLUEENEMY 0
 #define DELAT_MAX 30
 
 typedef	int filter_type;
