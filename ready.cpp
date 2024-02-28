@@ -1,4 +1,4 @@
-s
+
 #include"test.h"
 filter_type filter(filter_type effective, filter_type newe, filter_type max)////简单滤波器，用来限制范围
 {
