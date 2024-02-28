@@ -1,13 +1,8 @@
 
-
 #include"test.h"
-
 filter_type filter(filter_type effective, filter_type newe, filter_type max);
-
 RotatedRect& adjust(cv::RotatedRect& rec, const int mode);
 
- 
- 
 int main(){
 
     VideoCapture cap("/home/liuheming/桌面/opencv/build/zimiao/path_to_your_video1.avi");
