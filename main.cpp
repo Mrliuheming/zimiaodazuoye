@@ -1,8 +1,12 @@
 
 #include"test.h"
+
 filter_type filter(filter_type effective, filter_type newe, filter_type max);
+
 RotatedRect& adjust(cv::RotatedRect& rec, const int mode);
 
+ 
+ 
 int main(){
 
     VideoCapture cap("/home/liuheming/桌面/opencv/build/zimiao/path_to_your_video1.avi");
@@ -27,21 +31,6 @@ int main(){
      vector<Point2f> Points2D;
  int enemy_color;
       enemy_color = REDENEMY;
-          int stateNum = 4;
-    int measureNum = 2;
-    KalmanFilter KF(stateNum, measureNum, 0);
-
-    Mat mea = Mat::zeros(measureNum, 1, CV_32F);
-    KF.transitionMatrix = (Mat_<float>(stateNum, stateNum) << 1, 0, 1, 0,
-        0, 1, 0, 1,
-        0, 0, 1, 0,
-        0, 0, 0, 1);
-    
-    setIdentity(KF.measurementMatrix);
-    setIdentity(KF.processNoiseCov, Scalar::all(1e-5));
-    setIdentity(KF.measurementNoiseCov, Scalar::all(1e-1));
-    setIdentity(KF.errorCovPost, Scalar::all(1));
-    randn(KF.statePost, Scalar::all(0), Scalar::all(0.1));//卡尔曼滤波器，用来预测点的轨迹
      Mat cameraMatrix=(Mat_<float>(3,3) <<2337.174430, 0.000000, 746.042769,
     0.000000 ,2334.605162 ,561.369316,
     0.000000 ,0.000000 ,1.000000);
@@ -122,12 +111,6 @@ int main(){
        
             AR.center.x = filter(AR.center.x,xm, DELAT_MAX);
             AR.center.y = filter(AR.center.y,ym, DELAT_MAX);
-            Mat prediction = KF.predict();
-            Point predict_pt = Point((int)prediction.at<float>(0), (int)prediction.at<float>(1));
-
-            mea.at<float>(0) = (float)AR.center.x;
-            mea.at<float>(1) = (float)AR.center.y;
-            KF.correct(mea);
 
 
           Mat rvec,tvec;
@@ -145,9 +128,10 @@ int main(){
                 
             }
 
-     //solvePnP(Points3D,Points2D,cameraMatrix,dist,rvec,tvec,false,SOLVEPNP_ITERATIVE);
-         //cout<<rvec<<endl<<endl<<tvec;//解算部分疑似vector储存超维会在识别过程中突然错误
-         
+     solvePnP(Points3D,Points2D,cameraMatrix,dist,rvec,tvec,false,SOLVEPNP_ITERATIVE);
+         cout<<rvec<<endl<<endl<<tvec;
+         Points2D.clear();
+ 
         }
     }
     finsh=clock();
@@ -159,3 +143,6 @@ int main(){
     }
 
 }
+
+
+
