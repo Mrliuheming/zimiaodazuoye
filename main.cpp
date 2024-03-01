@@ -91,7 +91,8 @@ int main(){
             if (Contour_Len1 > 0.25 || Contour_Len2 > 0.25)
                 continue;
             AR.angle = (v[i].angle + v[j].angle) / 2.; 
-           if(AR.angle>-90&&AR.angle<-60) continue;            float h, w, yD, xD;
+           if(AR.angle>-90&&AR.angle<-60) continue;          
+         float h, w, yD, xD;
             h = (v[i].size.height + v[j].size.height) / 2; 
             w = sqrt((v[i].center.x - v[j].center.x) * (v[i].center.x - v[j].center.x) + (v[i].center.y - v[j].center.y) * (v[i].center.y - v[j].center.y));
             float ra = w / h; 
