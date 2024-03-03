@@ -1,6 +1,7 @@
 
 
 
+
 #include"test.h"
 
 filter_type filter(filter_type effective, filter_type newe, filter_type max);
@@ -33,7 +34,7 @@ int main(){
      vector<Point2f> Points2D;
  int enemy_color;
       enemy_color = REDENEMY;
-          int stateNum = 4;
+        /*  int stateNum = 4;
     int measureNum = 2;
     KalmanFilter KF(stateNum, measureNum, 0);
 
@@ -47,7 +48,7 @@ int main(){
     setIdentity(KF.processNoiseCov, Scalar::all(1e-5));
     setIdentity(KF.measurementNoiseCov, Scalar::all(1e-1));
     setIdentity(KF.errorCovPost, Scalar::all(1));
-    randn(KF.statePost, Scalar::all(0), Scalar::all(0.1));//卡尔曼滤波器，用来预测点的轨迹
+    randn(KF.statePost, Scalar::all(0), Scalar::all(0.1));//卡尔曼滤波器，用来预测点的轨*/
      Mat cameraMatrix=(Mat_<float>(3,3) <<2337.174430, 0.000000, 746.042769,
     0.000000 ,2334.605162 ,561.369316,
     0.000000 ,0.000000 ,1.000000);
@@ -128,19 +129,9 @@ int main(){
        
             AR.center.x = filter(AR.center.x,xm, DELAT_MAX);
             AR.center.y = filter(AR.center.y,ym, DELAT_MAX);
-            Mat prediction = KF.predict();
-            Point predict_pt = Point((int)prediction.at<float>(0), (int)prediction.at<float>(1));
-
-            mea.at<float>(0) = (float)AR.center.x;
-            mea.at<float>(1) = (float)AR.center.y;
-            KF.correct(mea);
-
-
           Mat rvec,tvec;
           rvec=Mat::zeros(3,1,CV_64F);
-        tvec=Mat::zeros(3,1,CV_64F);
-          
-         
+        tvec=Mat::zeros(3,1,CV_64F);        
           Point2f point[4];
            AR.points(point);
             for(int i=0;i<4;i++)
@@ -154,6 +145,8 @@ int main(){
      solvePnP(Points3D,Points2D,cameraMatrix,dist,rvec,tvec,false,SOLVEPNP_ITERATIVE);
          cout<<rvec<<endl<<endl<<tvec;
              Points2D.clear();
+            
+        vector<Point2f>().swap(Points2D);
         }
     }
     finsh=clock();
