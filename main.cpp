@@ -66,6 +66,7 @@ int main(){
         if (Contour_Area < 5 || Contour[i].size() <= 1)
             continue;
         RotatedRect Light_Rec = fitEllipse(Contour[i]);
+       Light_Rec=minAreaRect(Contour[i]);
         Light_Rec = adjust(Light_Rec, ANGLE);
         if (Light_Rec.size.width / Light_Rec.size.height > 0.8
          
@@ -80,19 +81,34 @@ int main(){
     {
         for (size_t j = i + 1; (j < v.size()); j++)
         {     RotatedRect AR;
-          
+            AR=minAreaRect(Contour[i]);
             AR.center.x = (v[i].center.x + v[j].center.x) / 2.; 
             AR.center.y = (v[i].center.y + v[j].center.y) / 2.; 
             float Contour_angle = abs(v[i].angle - v[j].angle); 
             if (Contour_angle >7)
                 continue;
             float Contour_Len1 = abs(v[i].size.height - v[j].size.height) / max(v[i].size.height, v[j].size.height);
-            float Contour_Len2 = abs(v[i].size.width - v[j].size.width) / max(v[i].size.width, v[j].size.width);
-            if (Contour_Len1 > 0.25 || Contour_Len2 > 0.25)
-                continue;
+            float Contour_Len2 = abs(v[i].size.width - v[j].size.width) / max(v[i].size.wi  for (unsigned int i = 0; i < Contour.size();i++)
+    {
+        double Contour_Area = contourArea(Contour[i]);
+
+        if (Contour_Area < 5 || Contour[i].size() <= 1)
+            continue;
+        RotatedRect Light_Rec = fitEllipse(Contour[i]);
+       Light_Rec=minAreaRect(Contour[i]);
+        Light_Rec = adjust(Light_Rec, ANGLE);
+        if (Light_Rec.size.width / Light_Rec.size.height > 0.8
+         
+              )
+     
+            continue;
+          
+       
+        v.push_back(Light_Rec);
+    }
             AR.angle = (v[i].angle + v[j].angle) / 2.; 
-           if(AR.angle>-90&&AR.angle<-60) continue;          
-         float h, w, yD, xD;
+           if(AR.angle>-90&&AR.angle<-60) continue;            
+           float h, w, yD, xD;
             h = (v[i].size.height + v[j].size.height) / 2; 
             w = sqrt((v[i].center.x - v[j].center.x) * (v[i].center.x - v[j].center.x) + (v[i].center.y - v[j].center.y) * (v[i].center.y - v[j].center.y));
             float ra = w / h; 
@@ -132,7 +148,7 @@ int main(){
      solvePnP(Points3D,Points2D,cameraMatrix,dist,rvec,tvec,false,SOLVEPNP_ITERATIVE);
          cout<<rvec<<endl<<endl<<tvec;
          Points2D.clear();
- 
+    
         }
     }
     finsh=clock();
@@ -144,6 +160,8 @@ int main(){
     }
 
 }
+
+
 
 
 
